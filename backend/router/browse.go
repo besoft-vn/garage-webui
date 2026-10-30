@@ -303,20 +303,27 @@ func getBucketCredentials(bucket string) (aws.CredentialsProvider, error) {
 	}
 
 	var key schema.KeyElement
+	var selected *schema.KeyElement
 
-	for _, k := range bucketData.Keys {
+	// Prefer a key with owner permission, as bucket configuration
+	// endpoints (e.g. lifecycle) require it.
+	for i, k := range bucketData.Keys {
 		if !k.Permissions.Read || !k.Permissions.Write {
 			continue
 		}
+		if selected == nil || (!selected.Permissions.Owner && k.Permissions.Owner) {
+			selected = &bucketData.Keys[i]
+		}
+	}
 
-		body, err := utils.Garage.Fetch(fmt.Sprintf("/v2/GetKeyInfo?id=%s&showSecretKey=true", k.AccessKeyID), &utils.FetchOptions{})
+	if selected != nil {
+		body, err := utils.Garage.Fetch(fmt.Sprintf("/v2/GetKeyInfo?id=%s&showSecretKey=true", selected.AccessKeyID), &utils.FetchOptions{})
 		if err != nil {
 			return nil, err
 		}
 		if err := json.Unmarshal(body, &key); err != nil {
 			return nil, err
 		}
-		break
 	}
 
 	credential := credentials.NewStaticCredentialsProvider(key.AccessKeyID, key.SecretAccessKey, "")

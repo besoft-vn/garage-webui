@@ -45,3 +45,18 @@ export type Quotas = {
   maxSize: null;
   maxObjects: null;
 };
+
+export type LifecycleRule = {
+  id: string;
+  enabled: boolean;
+  prefix: string;
+  objectSizeGreaterThan?: number | null;
+  objectSizeLessThan?: number | null;
+  expirationDays?: number | null;
+  expirationDate?: string | null;
+  abortIncompleteUploadsDays?: number | null;
+};
+
+export type LifecycleConfig = {
+  rules: LifecycleRule[];
+};

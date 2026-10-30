@@ -12,6 +12,7 @@ A simple admin web UI for [Garage](https://garagehq.deuxfleurs.fr/), a self-host
 - Cluster & layout management
 - Create, update, or view bucket information
 - Integrated objects/bucket browser
+- Bucket lifecycle rules (object expiration & abort incomplete uploads)
 - Create & assign access keys
 
 ## Installation

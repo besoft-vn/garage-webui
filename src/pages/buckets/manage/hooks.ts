@@ -5,7 +5,7 @@ import {
   UseMutationOptions,
   useQuery,
 } from "@tanstack/react-query";
-import { Bucket, Permissions } from "../types";
+import { Bucket, LifecycleConfig, LifecycleRule, Permissions } from "../types";
 
 export const useBucket = (id?: string | null) => {
   return useQuery({
@@ -107,6 +107,25 @@ export const useRemoveBucket = (
 ) => {
   return useMutation({
     mutationFn: (id) => api.post("/v2/DeleteBucket", { params: { id } }),
+    ...options,
+  });
+};
+
+export const useLifecycleRules = (bucket: string) => {
+  return useQuery({
+    queryKey: ["lifecycle", bucket],
+    queryFn: () => api.get<LifecycleConfig>(`/lifecycle/${bucket}`),
+    enabled: !!bucket,
+  });
+};
+
+export const useUpdateLifecycleRules = (
+  bucket: string,
+  options?: MutationOptions<unknown, Error, LifecycleRule[]>
+) => {
+  return useMutation({
+    mutationFn: (rules) =>
+      api.put(`/lifecycle/${bucket}`, { body: { rules } }),
     ...options,
   });
 };
