@@ -10,6 +10,11 @@ on:
       tag:
         description: "Existing tag to build (e.g. 1.2.0)"
         required: true
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
 
 env:
   REGISTRY: ghcr.io
