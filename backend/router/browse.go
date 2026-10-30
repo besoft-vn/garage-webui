@@ -284,8 +284,10 @@ func (b *Browse) DeleteObject(w http.ResponseWriter, r *http.Request) {
 	utils.ResponseSuccess(w, res)
 }
 
+const bucketCredentialsCachePrefix = "key:"
+
 func getBucketCredentials(bucket string) (aws.CredentialsProvider, error) {
-	cacheKey := fmt.Sprintf("key:%s", bucket)
+	cacheKey := bucketCredentialsCachePrefix + bucket
 	cacheData := utils.Cache.Get(cacheKey)
 
 	if cacheData != nil {
@@ -316,14 +318,16 @@ func getBucketCredentials(bucket string) (aws.CredentialsProvider, error) {
 		}
 	}
 
-	if selected != nil {
-		body, err := utils.Garage.Fetch(fmt.Sprintf("/v2/GetKeyInfo?id=%s&showSecretKey=true", selected.AccessKeyID), &utils.FetchOptions{})
-		if err != nil {
-			return nil, err
-		}
-		if err := json.Unmarshal(body, &key); err != nil {
-			return nil, err
-		}
+	if selected == nil {
+		return nil, errors.New("no access key with read and write permission on this bucket, allow one in the Permissions tab")
+	}
+
+	body, err = utils.Garage.Fetch(fmt.Sprintf("/v2/GetKeyInfo?id=%s&showSecretKey=true", selected.AccessKeyID), &utils.FetchOptions{})
+	if err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(body, &key); err != nil {
+		return nil, err
 	}
 
 	credential := credentials.NewStaticCredentialsProvider(key.AccessKeyID, key.SecretAccessKey, "")

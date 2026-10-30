@@ -16,6 +16,12 @@ func ProxyHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Bucket keys, permissions or aliases may change, so drop the cached
+	// S3 credentials used by the browser and lifecycle endpoints.
+	if r.Method != http.MethodGet {
+		utils.Cache.DeletePrefix(bucketCredentialsCachePrefix)
+	}
+
 	proxy := &httputil.ReverseProxy{
 		Rewrite: func(r *httputil.ProxyRequest) {
 			r.SetURL(target)
