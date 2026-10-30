@@ -22,7 +22,7 @@ The Garage Web UI is available as a single executable binary and docker image. Y
 ### Docker CLI
 
 ```sh
-$ docker run -p 3909:3909 -v ./garage.toml:/etc/garage.toml:ro --restart unless-stopped --name garage-webui khairul169/garage-webui:latest
+$ docker run -p 3909:3909 -v ./garage.toml:/etc/garage.toml:ro --restart unless-stopped --name garage-webui ghcr.io/besoft-vn/garage-webui:latest
 ```
 
 ### Docker Compose
@@ -46,7 +46,7 @@ services:
       - 3903:3903
 
   webui:
-    image: khairul169/garage-webui:latest
+    image: ghcr.io/besoft-vn/garage-webui:latest
     container_name: garage-webui
     restart: unless-stopped
     volumes:
